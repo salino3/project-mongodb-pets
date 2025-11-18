@@ -2,6 +2,8 @@ import mongoose, { model } from "mongoose";
 import "dotenv/config";
 import { OwnerSchema } from "./models/owner.js";
 import type { IOwner } from "./models/owner.js";
+import type { IPet } from "./models/pet.js";
+import { PetSchema } from "./models/pet.js";
 
 const MONGODB_URI: string = process.env.MONGODB_URI!;
 
@@ -17,17 +19,7 @@ async function main() {
     console.log("✅ Successful connection to MongoDB.");
 
     const Owner = model<IOwner>("Owner", OwnerSchema);
-
-    // 3. The data will be inserted
-    const firstOwner = await Owner.create({
-      name: "Carlos Ruiz",
-      phone: "555-0101",
-      address: "Calle test 123",
-    });
-
-    console.log(
-      `👤 Owner created successfully: ${firstOwner.name} with ID: ${firstOwner._id}`
-    );
+    const Pet = model<IPet>("Pet", PetSchema);
 
     // Close connection after the operation
     await mongoose.disconnect();
