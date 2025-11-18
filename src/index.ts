@@ -1,5 +1,9 @@
-import mongoose from "mongoose";
+import mongoose, { model } from "mongoose";
 import "dotenv/config";
+import { OwnerSchema } from "./models/owner.js";
+import type { IOwner } from "./models/owner.js";
+import type { IPet } from "./models/pet.js";
+import { PetSchema } from "./models/pet.js";
 
 const MONGODB_URI: string = process.env.MONGODB_URI!;
 
@@ -10,13 +14,18 @@ if (!MONGODB_URI) {
 
 async function main() {
   try {
-    // Database connection attempt
+    // 1. Database connection attempt
     await mongoose.connect(MONGODB_URI);
     console.log("✅ Successful connection to MongoDB.");
 
-    // ... Model definition and logic ...
+    const Owner = model<IOwner>("Owner", OwnerSchema);
+    const Pet = model<IPet>("Pet", PetSchema);
+
+    // Close connection after the operation
+    await mongoose.disconnect();
+    console.log("❌ Connection to MongoDB closed.");
   } catch (error) {
-    console.error("❌ MongoDB connection error:", error);
+    console.error("❌ Execution error:", error);
   }
 }
 
