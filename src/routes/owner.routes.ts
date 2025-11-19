@@ -10,6 +10,14 @@ const router = Router();
 
 router.post("/", createOwner);
 
-router.route("/:id").get(getOwnerById).put(updateOwner).delete(deleteOwner);
+router
+  .route("/:id")
+  // .all(middlewareExample)
+  .get(getOwnerById)
+  .put(updateOwner)
+  .delete(
+    // middlewareExample
+    deleteOwner
+  );
 
 export default router;
