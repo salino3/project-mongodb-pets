@@ -20,6 +20,7 @@ export const createOwner = async (req: Request, res: Response) => {
   }
 };
 
+//
 export const getOwnerById = async (req: Request, res: Response) => {
   try {
     const OwnerModel = getOwnerModel();
@@ -42,6 +43,64 @@ export const getOwnerById = async (req: Request, res: Response) => {
     res.status(200).json(owner);
   } catch (error: any) {
     console.error("getOwnerById error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//
+export const updateOwner = async (req: Request, res: Response) => {
+  try {
+    const OwnerModel = getOwnerModel();
+    const { id } = req.params;
+    const updateData = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Owner ID is missing." });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid Owner ID format." });
+    }
+
+    const owner = await OwnerModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!owner) {
+      return res.status(404).json({ message: "Owner not found to update." });
+    }
+
+    res.status(200).json({ message: "Owner updated successfully.", owner });
+  } catch (error: any) {
+    console.error("updateOwner error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//
+export const deleteOwner = async (req: Request, res: Response) => {
+  try {
+    const OwnerModel = getOwnerModel();
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Owner ID is missing." });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid Owner ID format." });
+    }
+
+    const result = await OwnerModel.findByIdAndDelete(id);
+
+    if (!result) {
+      return res.status(404).json({ message: "Owner not found to delete." });
+    }
+
+    res.status(200).json({ message: "Owner deleted successfully." });
+  } catch (error: any) {
+    console.error("deleteOwner error:", error);
     res.status(500).json({ message: error.message });
   }
 };

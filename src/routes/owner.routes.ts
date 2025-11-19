@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { createOwner, getOwnerById } from "../controllers/owner.controller.js";
+import {
+  createOwner,
+  deleteOwner,
+  getOwnerById,
+  updateOwner,
+} from "../controllers/owner.controller.js";
 
 const router = Router();
 
 router.post("/", createOwner);
 
-router.get("/:id", getOwnerById);
+router.route("/:id").get(getOwnerById).put(updateOwner).delete(deleteOwner);
 
 export default router;
