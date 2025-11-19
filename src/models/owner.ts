@@ -1,4 +1,4 @@
-import { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 // Interface for type checking in TypeScript
 // Extends Document to include Mongoose properties like _id
@@ -9,7 +9,7 @@ export interface IOwner extends Document {
 }
 
 // Define the Mongoose Schema. It's the blueprint.
-const OwnerSchema = new Schema<IOwner>({
+export const OwnerSchema = new Schema<IOwner>({
   name: {
     type: String,
     required: true,
@@ -18,6 +18,3 @@ const OwnerSchema = new Schema<IOwner>({
   phone: String,
   address: String,
 });
-
-// The Model will be created in index.ts after connection.
-export { OwnerSchema };

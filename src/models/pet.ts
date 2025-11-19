@@ -9,7 +9,7 @@ export interface IPet extends Document {
 }
 
 // Define the Mongoose Schema
-const PetSchema = new Schema<IPet>({
+export const PetSchema = new Schema<IPet>({
   name: {
     type: String,
     required: true,
@@ -27,5 +27,3 @@ const PetSchema = new Schema<IPet>({
     required: true,
   },
 });
-
-export { PetSchema };
