@@ -6,6 +6,7 @@ import type { IOwner } from "./models/owner.js";
 import { PetSchema } from "./models/pet.js";
 import type { IPet } from "./models/pet.js";
 import ownerRoutes from "./routes/owner.routes.js";
+import petRoutes from "./routes/pet.routes.js";
 
 const MONGODB_URI: string = process.env.MONGODB_URI!;
 const PORT = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ async function main() {
     app.use(express.json());
 
     app.use("/api/owners", ownerRoutes);
+    app.use("/api/pets", petRoutes);
 
     app.listen(PORT, () => {
       console.log(`🚀 Server listening on port ${PORT}`);
