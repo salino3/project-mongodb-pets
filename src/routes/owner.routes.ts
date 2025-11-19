@@ -3,6 +3,7 @@ import {
   createOwner,
   deleteOwner,
   getAllPetsByOwnerId,
+  getAllPetsByOwnerIdWithLookUp,
   getOwnerById,
   updateOwner,
 } from "../controllers/owner.controller.js";
@@ -22,5 +23,7 @@ router
   );
 
 router.get("/:ownerId/pets", getAllPetsByOwnerId);
+
+router.get("/:ownerId/pets/lookup", getAllPetsByOwnerIdWithLookUp);
 
 export default router;

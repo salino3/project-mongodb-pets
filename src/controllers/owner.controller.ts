@@ -141,3 +141,69 @@ export const getAllPetsByOwnerId = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+//
+export const getAllPetsByOwnerIdWithLookUp = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const OwnerModel = getOwnerModel();
+    const { ownerId } = req.params;
+
+    // 1. Validate Owner ID format
+    if (!ownerId || !mongoose.Types.ObjectId.isValid(ownerId)) {
+      return res.status(400).json({ message: "Invalid Owner ID format." });
+    }
+
+    // Convert the string ID from req.params to a Mongoose ObjectId
+    // This is required for the $match stage in the aggregation pipeline.
+    const ownerObjectId = new mongoose.Types.ObjectId(ownerId);
+
+    // 2. SINGLE DB CALL: The Aggregation Pipeline
+    const results = await OwnerModel.aggregate([
+      // $match: Stage 1. Filter the 'owners' collection to find the specific owner.
+      // If the owner does not exist, the pipeline returns an empty array,
+      // which we use to trigger the 404 response.
+      { $match: { _id: ownerObjectId } },
+
+      // $lookup: Stage 2. Perform the JOIN operation (left outer join).
+      {
+        $lookup: {
+          from: "pets", // The collection we want to join with (must be the plural name)
+          localField: "_id", // The field from the input documents (Owner's _id)
+          foreignField: "ownerId", // The field from the 'pets' collection to match on
+          as: "pets", // The name of the new array field to add to the output documents
+        },
+      },
+
+      // $project: Stage 3 (Optional). Shape the output document for the client.
+      {
+        $project: {
+          name: 1, // Keep the owner's name
+          pets: 1, // Keep the array of pets
+          _id: 0, // Hide the owner's _id from the final output (optional cleanup)
+        },
+      },
+    ]);
+
+    // 3. Check if the Owner was found (Validation check based on pipeline result)
+    if (results.length === 0) {
+      // If the $match stage failed, the array will be empty.
+      return res.status(404).json({ message: "Owner not found." });
+    }
+
+    // 4. Extract data and send the response
+    const ownerData = results[0];
+    const pets = ownerData.pets || [];
+
+    res.status(200).json({
+      message: `Pets found for owner: ${ownerData.name}`,
+      petsCount: pets.length,
+      pets: pets,
+    });
+  } catch (error: any) {
+    console.error("getAllPetsByOwnerId aggregation error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
