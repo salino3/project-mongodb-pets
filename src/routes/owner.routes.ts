@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createOwner,
   deleteOwner,
+  getAllPetsByOwnerId,
   getOwnerById,
   updateOwner,
 } from "../controllers/owner.controller.js";
@@ -19,5 +20,7 @@ router
     // middlewareExample
     deleteOwner
   );
+
+router.get("/:ownerId/pets", getAllPetsByOwnerId);
 
 export default router;

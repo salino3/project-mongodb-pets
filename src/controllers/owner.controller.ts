@@ -1,9 +1,12 @@
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import type { IOwner } from "../models/owner.js";
+import type { IPet } from "../models/pet.js";
 
 // Function to safely get the model AFTER it is registered
 const getOwnerModel = () => mongoose.model<IOwner>("Owner");
+// Function to safely get the Pet Model
+const getPetModel = () => mongoose.model<IPet>("Pet");
 
 export const createOwner = async (req: Request, res: Response) => {
   try {
@@ -101,6 +104,40 @@ export const deleteOwner = async (req: Request, res: Response) => {
     res.status(200).json({ message: "Owner deleted successfully." });
   } catch (error: any) {
     console.error("deleteOwner error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//
+export const getAllPetsByOwnerId = async (req: Request, res: Response) => {
+  try {
+    const OwnerModel = getOwnerModel();
+    const PetModel = getPetModel();
+    const { ownerId } = req.params;
+
+    // 1. Validate Owner ID format
+    if (!ownerId || !mongoose.Types.ObjectId.isValid(ownerId)) {
+      return res.status(400).json({ message: "Invalid Owner ID format." });
+    }
+
+    // 2. Check if the Owner exists
+    const ownerExists = await OwnerModel.findById(ownerId);
+    if (!ownerExists) {
+      return res.status(404).json({ message: "Owner not found." });
+    }
+
+    // 3. Find all pets where the 'ownerId' field matches the ID from the URL.
+    // NOTE: We don't need .populate() here unless the Pet model had its own references.
+    const pets = await PetModel.find({ ownerId: ownerId });
+
+    // 4. Return the list of pets
+    res.status(200).json({
+      message: `Pets found for owner: ${ownerExists.name}`,
+      petsCount: pets.length,
+      pets: pets,
+    });
+  } catch (error: any) {
+    console.error("getAllPetsByOwnerId error:", error);
     res.status(500).json({ message: error.message });
   }
 };
